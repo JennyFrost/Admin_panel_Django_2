@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponseNotFound
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.list import BaseListView
 
-from movies.models import Filmwork
+from movies.models import Filmwork, RoleType
 
 
 class MoviesApiMixin:
@@ -15,11 +15,11 @@ class MoviesApiMixin:
         movies = self.model.objects.prefetch_related('genre', 'person').values().annotate(
             genres=ArrayAgg('genres__name', distinct=True),
             actors=ArrayAgg('persons__full_name', distinct=True,
-                            filter=Q(personfilmwork__role='actor')),
+                            filter=Q(personfilmwork__role=RoleType.ACTOR)),
             directors=ArrayAgg('persons__full_name', distinct=True,
-                               filter=Q(personfilmwork__role='director')),
+                               filter=Q(personfilmwork__role=RoleType.DIRECTOR)),
             writers=ArrayAgg('persons__full_name', distinct=True,
-                             filter=Q(personfilmwork__role='writer')))
+                             filter=Q(personfilmwork__role=RoleType.WRITER)))
         return movies
 
     def render_to_response(self, context, **response_kwargs):
@@ -64,8 +64,7 @@ class MoviesDetailApi(MoviesApiMixin, BaseDetailView):
         movie = [obj for obj in list(self.get_queryset()) if obj.get('id') == pk]
         if movie:
             return movie[0]
-        else:
-            return HttpResponseNotFound
+        return HttpResponseNotFound
 
     def render_to_response(self, context, **response_kwargs):
         return MoviesApiMixin.render_to_response(self, context, **response_kwargs)

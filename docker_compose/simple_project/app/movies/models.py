@@ -95,11 +95,13 @@ class Person(TimeStampedMixin, UUIDMixin):
         return self.full_name
 
 
+class RoleType(models.TextChoices):
+    ACTOR = 'actor', 'Actor'
+    DIRECTOR = 'director', 'Director'
+    WRITER = 'writer', 'Writer'
+
+
 class PersonFilmwork(UUIDMixin):
-    class RoleType(models.TextChoices):
-        ACTOR = 'ACT', 'Actor'
-        DIRECTOR = 'DIR', 'Director'
-        WRITER = 'WRI', 'Writer'
 
     person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name=_('person'))
     film_work = models.ForeignKey(Filmwork, on_delete=models.CASCADE,
